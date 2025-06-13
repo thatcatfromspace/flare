@@ -1,6 +1,10 @@
 from queue import PriorityQueue
 from geopy.distance import geodesic
 
+from clients.here_traffic_client import TrafficClient
+from clients.open_weather_client import WeatherClient
+
+
 # Constants
 MAX_DISTANCE_MILES = 10
 MAX_CO2_PER_MILE = 0.5
@@ -148,9 +152,29 @@ def choose_best_driver(drivers, delivery):
     return pq.get() if not pq.empty() else None
 
 
+# Sample usage
 if __name__ == "__main__":
     import pprint
     from sample_data.orlando_fl import DRIVERS, DELIVERIES
+    from dotenv import load_dotenv
+    import os
+
+    load_dotenv()
+
+    # Initialize clients
+    traffic_client = TrafficClient(api_key=os.getenv("HERE_API_KEY"))
+    weather_client = WeatherClient(api_key=os.getenv("OPEN_WEATHER_API_KEY"))
+    # Update deliveries with traffic and weather data
+    for delivery in DELIVERIES:
+        delivery["traffic_delay_min"] = traffic_client.get_traffic_delay_minutes(
+            delivery["pickup_lat"],
+            delivery["pickup_lon"],
+            delivery["drop_lat"],
+            delivery["drop_lon"],
+        )
+        delivery["weather_delay_factor"] = weather_client.get_weather_delay_factor(
+            delivery["drop_lat"], delivery["drop_lon"]
+        )
 
     # Example usage
     for delivery in DELIVERIES:

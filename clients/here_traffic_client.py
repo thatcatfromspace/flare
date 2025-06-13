@@ -24,6 +24,8 @@ class TrafficClient:
             base_duration = summary["baseDuration"] / 60  # in minutes
             delay = max(duration_with_traffic - base_duration, 0)
 
+            print(f"[HERE Traffic API]: {delay} minutes delay for route from ({origin_lat}, {origin_lon}) to ({dest_lat}, {dest_lon})"  )
+
             return round(delay, 2)
 
         except Exception as e:

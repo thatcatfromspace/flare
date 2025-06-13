@@ -8,54 +8,64 @@ WALMART_STORE = {
 DRIVERS = [
     {
         "id": "d1", "lat": 28.5401, "lon": -81.3851, "vehicle_type": "electric",
-        "mpg": None, "kWh_per_100km": 14, "acceptance_rate": 80,
+        "mpg": None, "kWh_per_100km": 14, "acceptance_last_7_days": 80,
+        "acceptance_last_14_days": 78, "acceptance_last_30_days": 74,
         "reliability": 85, "average_pay": 15, "capacity_lbs": 25, "available": True
     },
     {
         "id": "d2", "lat": 28.5365, "lon": -81.3750, "vehicle_type": "petrol",
-        "mpg": 30, "kWh_per_100km": None, "acceptance_rate": 85,
+        "mpg": 30, "kWh_per_100km": None, "acceptance_last_7_days": 85,
+        "acceptance_last_14_days": 80, "acceptance_last_30_days": 75,
         "reliability": 91, "average_pay": 13, "capacity_lbs": 30, "available": True
     },
     {
         "id": "d3", "lat": 28.5392, "lon": -81.3721, "vehicle_type": "hybrid",
-        "mpg": 48, "kWh_per_100km": None, "acceptance_rate": 75,
+        "mpg": 48, "kWh_per_100km": None, "acceptance_last_7_days": 75,
+        "acceptance_last_14_days": 70, "acceptance_last_30_days": 65,
         "reliability": 80, "average_pay": 14, "capacity_lbs": 20, "available": True
     },
     {
         "id": "d4", "lat": 28.5410, "lon": -81.3900, "vehicle_type": "diesel",
-        "mpg": 22, "kWh_per_100km": None, "acceptance_rate": 90,
+        "mpg": 22, "kWh_per_100km": None, "acceptance_last_7_days": 90,
+        "acceptance_last_14_days": 89, "acceptance_last_30_days": 87,
         "reliability": 78, "average_pay": 16, "capacity_lbs": 45, "available": True
     },
     {
         "id": "d5", "lat": 28.5450, "lon": -81.3790, "vehicle_type": "petrol",
-        "mpg": 28, "kWh_per_100km": None, "acceptance_rate": 60,
+        "mpg": 28, "kWh_per_100km": None, "acceptance_last_7_days": 60,
+        "acceptance_last_14_days": 58, "acceptance_last_30_days": 55,
         "reliability": 70, "average_pay": 17, "capacity_lbs": 15, "available": True
     },
     {
         "id": "d6", "lat": 28.5330, "lon": -81.3820, "vehicle_type": "electric",
-        "mpg": None, "kWh_per_100km": 16, "acceptance_rate": 92,
+        "mpg": None, "kWh_per_100km": 16, "acceptance_last_7_days": 92,
+        "acceptance_last_14_days": 90, "acceptance_last_30_days": 88,
         "reliability": 95, "average_pay": 12, "capacity_lbs": 35, "available": False
     },
     {
         "id": "d7", "lat": 28.5370, "lon": -81.3870, "vehicle_type": "petrol",
-        "mpg": 32, "kWh_per_100km": None, "acceptance_rate": 88,
+        "mpg": 32, "kWh_per_100km": None, "acceptance_last_7_days": 88,
+        "acceptance_last_14_days": 85, "acceptance_last_30_days": 80,
         "reliability": 88, "average_pay": 13.5, "capacity_lbs": 30, "available": True
     },
     {
         "id": "d8", "lat": 28.5305, "lon": -81.3795, "vehicle_type": "electric",
-        "mpg": None, "kWh_per_100km": 18, "acceptance_rate": 70,
+        "mpg": None, "kWh_per_100km": 18, "acceptance_last_7_days": 70,
+        "acceptance_last_14_days": 68, "acceptance_last_30_days": 66,
         "reliability": 60, "average_pay": 14.5, "capacity_lbs": 40, "available": True
     },
     {
         "id": "d9", "lat": 28.5435, "lon": -81.3720, "vehicle_type": "diesel",
-        "mpg": 20, "kWh_per_100km": None, "acceptance_rate": 65,
+        "mpg": 20, "kWh_per_100km": None, "acceptance_last_7_days": 65,
+        "acceptance_last_14_days": 63, "acceptance_last_30_days": 60,
         "reliability": 82, "average_pay": 15.5, "capacity_lbs": 50, "available": True
     },
     {
         "id": "d10", "lat": 28.5352, "lon": -81.3699, "vehicle_type": "hybrid",
-        "mpg": 50, "kWh_per_100km": None, "acceptance_rate": 95,
+        "mpg": 50, "kWh_per_100km": None, "acceptance_last_7_days": 95,
+        "acceptance_last_14_days": 93, "acceptance_last_30_days": 90,
         "reliability": 97, "average_pay": 12.8, "capacity_lbs": 28, "available": True
-    },
+    }
 ]
 
 DELIVERIES = [

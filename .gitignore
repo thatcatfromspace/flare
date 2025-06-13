@@ -3,3 +3,5 @@ venv/
 *.py[cod]
 *.pyo
 *.pkl
+
+.env
