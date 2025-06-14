@@ -5,14 +5,21 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import classification_report, roc_auc_score
+import json
+
 
 class LogisticRegressionModel:
     """
     Modular logistic regression model for driver acceptance prediction.
     """
 
-    def __init__(self, model_path="./model/driver_acceptance_model.pkl"):
+    def __init__(
+        self,
+        model_path="driver_acceptance_model.pkl",
+        features_path="model_features.json",
+    ):
         self.model_path = model_path
+        self.features_path = features_path
         self.model = None
         self.features = [
             "distance_to_pickup_mi",
@@ -39,6 +46,10 @@ class LogisticRegressionModel:
         ]
         X = df[self.features + self.extra_features]
         y = df["accepted"]
+        # Save feature order for scoring code
+        with open(self.features_path, "w") as f:
+            json.dump(self.features + self.extra_features, f)
+        print("Feature order saved to", self.features_path)
         return X, y
 
     def preprocess_data(self, X, y, test_size=0.2, random_state=44):

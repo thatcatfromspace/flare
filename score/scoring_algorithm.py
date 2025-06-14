@@ -1,5 +1,8 @@
 from queue import PriorityQueue
 from geopy.distance import geodesic
+import pandas as pd
+from joblib import load
+from datetime import datetime
 
 from clients.here_traffic_client import TrafficClient
 from clients.open_weather_client import WeatherClient
@@ -11,7 +14,105 @@ MAX_CO2_PER_MILE = 0.5
 MAX_AVERAGE_PAY = 20
 MAX_TRAFFIC_DELAY_MIN = 60
 
+# ---- Model Components ---- #
+
+MODEL = load("model/driver_acceptance_model.pkl")
+
+# Ordered feature list (from the trained model)
+MODEL_FEATURES = [
+    "distance_to_pickup_mi",
+    "dropoff_distance_mi",
+    "delivery_size_lbs",
+    "offered_pay_usd",
+    "acceptance_rate_7d",
+    "acceptance_rate_14d",
+    "acceptance_rate_30d",
+    "reliability_score",
+    "traffic_delay_min",
+    "weather_delay_factor",
+    "hour_of_day",
+    "day_of_week",
+    # One-hot encoded vehicle types (modify based on training data) -> diesel is dropped
+    "vehicle_type_electric",
+    "vehicle_type_hybrid",
+    "vehicle_type_petrol",
+]
+
+
+def to_feature_vector(driver, delivery, pay=15.0):
+    now = datetime.now()
+    vehicle_onehot = {
+        "vehicle_type_electric": 1 if driver["vehicle_type"] == "electric" else 0,
+        "vehicle_type_hybrid": 1 if driver["vehicle_type"] == "hybrid" else 0,
+        "vehicle_type_petrol": 1 if driver["vehicle_type"] == "petrol" else 0,
+    }
+
+    feature_dict = {
+        "distance_to_pickup_mi": geodesic(
+            (delivery["pickup_lat"], delivery["pickup_lon"]),
+            (driver["lat"], driver["lon"]),
+        ).miles,
+        "dropoff_distance_mi": geodesic(
+            (delivery["drop_lat"], delivery["drop_lon"]), (driver["lat"], driver["lon"])
+        ).miles,
+        "delivery_size_lbs": delivery["size_lbs"],
+        "offered_pay_usd": pay,
+        "acceptance_rate_7d": driver.get("acceptance_last_7_days", 0),
+        "acceptance_rate_14d": driver.get("acceptance_last_14_days", 0),
+        "acceptance_rate_30d": driver.get("acceptance_last_30_days", 0),
+        "reliability_score": driver["reliability"],
+        "traffic_delay_min": delivery.get("traffic_delay_min", 0),
+        "weather_delay_factor": delivery.get("weather_delay_factor", 0),
+        "hour_of_day": now.hour,
+        "day_of_week": now.weekday(),
+        **vehicle_onehot,
+    }
+
+    return [feature_dict.get(f, 0) for f in MODEL_FEATURES]
+
+
+def model_acceptance_prob(driver: dict, delivery: dict, pay: float = 15.0) -> float:
+    features = to_feature_vector(driver, delivery, pay)
+    df = pd.DataFrame([features], columns=MODEL_FEATURES)
+    return MODEL.predict_proba(df)[0][1]
+
+
+def choose_best_driver_with_tiebreak(drivers, delivery, threshold=0.05):
+    """
+    Rank drivers by score, then use ML model to break ties within a close score threshold.
+    Returns the (score, best driver) tuple.
+    """
+    driver_score_map = []
+    for driver in drivers:
+        if is_eligible(driver, delivery):
+            score = compute_total_score(driver, delivery)
+            driver_score_map.append({"driver": driver, "score": score})
+
+    if not driver_score_map:
+        return None
+
+    driver_score_map.sort(key=lambda x: x["score"], reverse=True)
+
+    top_score = driver_score_map[0]["score"]
+    tie_band = [
+        entry
+        for entry in driver_score_map
+        if abs(entry["score"] - top_score) <= threshold
+    ]
+
+    if len(tie_band) == 1:
+        return top_score, tie_band[0]["driver"]
+
+    for entry in tie_band:
+        entry["accept_prob"] = model_acceptance_prob(entry["driver"], delivery)
+
+    tie_band.sort(key=lambda x: x["accept_prob"], reverse=True)
+
+    return tie_band[0]["score"], tie_band[0]["driver"]
+
+
 # ---- Scoring Components ---- #
+
 
 def get_distance_miles(driver, delivery):
     return geodesic(
@@ -88,6 +189,7 @@ def weather_score(delivery):
 
 # ---- Eligibility check for delivery ---- #
 
+
 def is_eligible(driver, delivery):
     """
     Return `True` if a driver fulfils eligibility criteria for a particular delivery.
@@ -104,10 +206,11 @@ def is_eligible(driver, delivery):
 
 # ---- Total Score Computation ---- #
 
+
 def compute_total_score(driver, delivery):
     """
     Compute total score. Weights are subject to change.
-    
+
     - Promote consistent, responsible drivers
     - Encourage comebacks
     - Still respect proximity and cost
@@ -117,8 +220,8 @@ def compute_total_score(driver, delivery):
     weights = {
         "distance": 0.20,
         "sustainability": 0.10,
-        "reliability": 0.25, 
-        "acceptance": 0.25,  
+        "reliability": 0.25,
+        "acceptance": 0.25,
         "cost": 0.10,
         "traffic": 0.07,
         "weather": 0.03,
@@ -138,18 +241,6 @@ def compute_total_score(driver, delivery):
 
     total = sum(scores[k] * weights[k] for k in weights)
     return round(total, 4)
-
-
-def choose_best_driver(drivers, delivery):
-    pq = PriorityQueue()
-    for driver in drivers:
-        if not is_eligible(driver, delivery):
-            continue
-
-        score = compute_total_score(driver, delivery)
-        if score > 0:
-            pq.put((-score, driver))  # negative score for max heap
-    return pq.get() if not pq.empty() else None
 
 
 # Sample usage
@@ -178,8 +269,9 @@ if __name__ == "__main__":
 
     # Example usage
     for delivery in DELIVERIES:
-        score, best_driver = choose_best_driver(DRIVERS, delivery)
-        if best_driver:
+        result = choose_best_driver_with_tiebreak(DRIVERS, delivery)
+        if result:
+            score, best_driver = result
             print("Best driver:")
             pprint.pprint(best_driver)
-            print(-score)
+            print("Score:", round(score, 4))

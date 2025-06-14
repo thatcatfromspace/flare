@@ -1,0 +1,17 @@
+[
+  "distance_to_pickup_mi",
+  "dropoff_distance_mi",
+  "delivery_size_lbs",
+  "offered_pay_usd",
+  "acceptance_rate_7d",
+  "acceptance_rate_14d",
+  "acceptance_rate_30d",
+  "reliability_score",
+  "traffic_delay_min",
+  "weather_delay_factor",
+  "hour_of_day",
+  "day_of_week",
+  "vehicle_type_electric",
+  "vehicle_type_hybrid",
+  "vehicle_type_petrol"
+]
