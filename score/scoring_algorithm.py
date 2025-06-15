@@ -1,4 +1,3 @@
-from queue import PriorityQueue
 from geopy.distance import geodesic
 import pandas as pd
 from joblib import load
@@ -103,6 +102,7 @@ def choose_best_driver_with_tiebreak(drivers, delivery, threshold=0.05):
     if len(tie_band) == 1:
         return top_score, tie_band[0]["driver"]
 
+    # If we have a tie, use the ML model to break it based on acceptance probability
     for entry in tie_band:
         entry["accept_prob"] = model_acceptance_prob(entry["driver"], delivery)
 
@@ -112,7 +112,6 @@ def choose_best_driver_with_tiebreak(drivers, delivery, threshold=0.05):
 
 
 # ---- Scoring Components ---- #
-
 
 def get_distance_miles(driver, delivery):
     return geodesic(
@@ -189,7 +188,6 @@ def weather_score(delivery):
 
 # ---- Eligibility check for delivery ---- #
 
-
 def is_eligible(driver, delivery):
     """
     Return `True` if a driver fulfils eligibility criteria for a particular delivery.
@@ -205,7 +203,6 @@ def is_eligible(driver, delivery):
 
 
 # ---- Total Score Computation ---- #
-
 
 def compute_total_score(driver, delivery):
     """
