@@ -1,6 +1,6 @@
-# Flare Driver Acceptance & Scoring System
+# FLARE Driver Acceptance & Scoring System
 
-This project predicts driver acceptance for deliveries and ranks drivers using a modular machine learning pipeline. It includes data preprocessing, model training, scoring algorithms, and sample data for simulation.
+This project, FLARE (Fast Logistics Assignment & Logistics Engine) predicts driver acceptance for deliveries and ranks drivers using a modular machine learning pipeline. It includes data preprocessing, model training, scoring algorithms, and sample data for simulation.
 
 ## Features
 
