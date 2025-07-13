@@ -1,0 +1,11 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+asyncpg
+aioredis
+pydantic
+python-dotenv
+geopy
+pandas
+scikit-learn
+numpy
